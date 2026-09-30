@@ -577,7 +577,7 @@ int battnavale()
 										Flag1=1;
 										if(B1[h-4][k-20]!=32)
 										{
-											printf("Casella gia'  occupata");
+											printf("Casella gia'Â  occupata");
 											Flag1=0;
 										}
 										}while(Flag1==0);
@@ -604,7 +604,7 @@ int battnavale()
 										Flag1=1;
 										if(B1[h-4][k-20]!=32)
 										{
-											printf("Casella gia'  occupata");
+											printf("Casella gia'Â  occupata");
 											Flag1=0;
 										}
 										}while(Flag1==0);
@@ -634,7 +634,7 @@ int battnavale()
 										Flag1=1;
 										if(B1[h-4][k-20]!=32)
 										{
-											printf("Casella gia'  occupata");
+											printf("Casella gia'Â  occupata");
 											Flag1=0;
 										}
 										}while(Flag1==0);
@@ -661,7 +661,7 @@ int battnavale()
 										Flag1=1;
 										if(B1[h-4][k-20]!=32)
 										{
-											printf("Casella gia'  occupata");
+											printf("Casella gia'Â  occupata");
 											Flag1=0;
 										}
 										}while(Flag1==0);
@@ -688,7 +688,7 @@ int battnavale()
 										Flag1=1;
 										if(B1[h-4][k-20]!=32)
 										{
-											printf("Casella gia'  occupata");
+											printf("Casella gia'Â  occupata");
 											Flag1=0;
 										}
 										}while(Flag1==0);
@@ -715,7 +715,7 @@ int battnavale()
 										Flag1=1;
 										if(B1[h-4][k-20]!=32)
 										{
-											printf("Casella gia'  occupata");
+											printf("Casella gia'Â  occupata");
 											Flag1=0;
 										}
 										}while(Flag1==0);
@@ -744,7 +744,7 @@ int battnavale()
 											Flag1=1;
 											if(B1[h-4][k-20]!=32)
 											{
-												printf("Casella gia'  occupata");
+												printf("Casella gia'Â  occupata");
 												Flag1=0;
 											}
 											}while(Flag1==0);
@@ -772,7 +772,7 @@ int battnavale()
 											Flag1=1;
 											if(B1[h-4][k-20]!=32)
 											{
-												printf("Casella gia'  occupata");
+												printf("Casella gia'Â  occupata");
 												Flag1=0;
 											}
 											}while(Flag1==0);
@@ -799,7 +799,7 @@ int battnavale()
 									Flag1=1;
 									if(B1[h-4][k-20]!=32)
 										{
-											printf("Casella gia'  occupata");
+											printf("Casella gia'Â  occupata");
 											Flag1=0;
 										}
 									}while(Flag1==0);
@@ -826,7 +826,7 @@ int battnavale()
 									Flag1=1;
 									if(B1[h-4][k-20]!=32)
 									{
-										printf("Casella gia'  occupata");
+										printf("Casella gia'Â  occupata");
 										Flag1=0;
 									}
 									}while(Flag1==0);
@@ -853,7 +853,7 @@ int battnavale()
 									Flag1=1;
 									if(B1[h-4][k-20]!=32)
 									{
-										printf("Casella gia'  occupata");
+										printf("Casella gia'Â  occupata");
 										Flag1=0;
 									}
 									}while(Flag1==0);
@@ -880,7 +880,7 @@ int battnavale()
 									Flag1=1;
 									if(B1[h-4][k-20]!=32)
 									{
-										printf("Casella gia'  occupata");
+										printf("Casella gia'Â  occupata");
 										Flag1=0;
 									}
 									}while(Flag1==0);
@@ -897,7 +897,7 @@ int battnavale()
 									Flag1=1;
 									if(B1[h-4][k-20]!=32)
 									{
-										printf("Casella gia'  occupata");
+										printf("Casella gia'Â  occupata");
 										Flag1=0;
 									}
 									}while(Flag1==0);
@@ -937,7 +937,7 @@ int battnavale()
 								Flag1=1;
 								if(B2[h-4][k-20]!=32)
 								{
-									printf("Casella gia'  occupata");
+									printf("Casella gia'Â  occupata");
 									Flag1=0;
 								}
 								}while(Flag1==0);
@@ -964,7 +964,7 @@ int battnavale()
 								Flag1=1;
 								if(B2[h-4][k-20]!=32)
 								{
-									printf("Casella gia'  occupata");
+									printf("Casella gia'Â  occupata");
 									Flag1=0;
 								}
 								}while(Flag1==0);
@@ -991,7 +991,7 @@ int battnavale()
 								Flag1=1;
 								if(B2[h-4][k-20]!=32)
 								{
-									printf("Casella gia'  occupata");
+									printf("Casella gia'Â  occupata");
 									Flag1=0;
 								}
 								}while(Flag1==0);
@@ -1022,7 +1022,7 @@ int battnavale()
 								Flag1=1;
 								if(B2[h-4][k-20]!=32)
 								{
-									printf("Casella gia'  occupata");
+									printf("Casella gia'Â  occupata");
 									Flag1=0;
 								}
 								}while(Flag1==0);
@@ -1071,7 +1071,7 @@ int battnavale()
 								Flag1=1;
 								if(B2[h-4][k-20]!=32)
 								{
-									printf("Casella gia'  occupata");
+									printf("Casella gia'Â  occupata");
 									Flag1=0;
 								}
 								}while(Flag1==0);
@@ -1099,7 +1099,7 @@ int battnavale()
 								Flag1=1;
 								if(B2[h-4][k-20]!=32)
 								{
-									printf("Casella gia'  occupata");
+									printf("Casella gia'Â  occupata");
 									Flag1=0;
 								}
 								}while(Flag1==0);
@@ -1126,7 +1126,7 @@ int battnavale()
 								Flag1=1;
 								if(B2[h-4][k-20]!=32)
 								{
-									printf("Casella gia'  occupata");
+									printf("Casella gia'Â  occupata");
 									Flag1=0;
 								}
 								}while(Flag1==0);
@@ -1153,7 +1153,7 @@ int battnavale()
 								Flag1=1;
 								if(B2[h-4][k-20]!=32)
 								{
-									printf("Casella gia'  occupata");
+									printf("Casella gia'Â  occupata");
 									Flag1=0;
 								}
 								}while(Flag1==0);
@@ -1180,7 +1180,7 @@ int battnavale()
 								Flag1=1;
 								if(B2[h-4][k-20]!=32)
 								{
-									printf("Casella gia'  occupata");
+									printf("Casella gia'Â  occupata");
 									Flag1=0;
 								}
 								}while(Flag1==0);
@@ -1207,7 +1207,7 @@ int battnavale()
 								Flag1=1;
 								if(B2[h-4][k-20]!=32)
 								{
-									printf("Casella gia'  occupata");
+									printf("Casella gia'Â  occupata");
 									Flag1=0;
 								}
 								}while(Flag1==0);
@@ -1234,7 +1234,7 @@ int battnavale()
 								Flag1=1;
 								if(B2[h-4][k-20]!=32)
 								{
-									printf("Casella gia'  occupata");
+									printf("Casella gia'Â  occupata");
 									Flag1=0;
 								}
 								}while(Flag1==0);
@@ -1262,7 +1262,7 @@ int battnavale()
 								Flag1=1;
 								if(B2[h-4][k-20]!=32)
 								{
-									printf("Casella gia'  occupata");
+									printf("Casella gia'Â  occupata");
 									Flag1=0;
 								}
 								}while(Flag1==0);
@@ -1289,7 +1289,7 @@ int battnavale()
 								Flag1=1;
 								if(B2[h-4][k-20]!=32)
 								{
-									printf("Casella gia'  occupata");
+									printf("Casella gia'Â  occupata");
 									Flag1=0;
 								}
 								}while(Flag1==0);
