@@ -1,5 +1,6 @@
 #include "battaglia.h"
 #include "console.h"
+#include "punteggio.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -155,13 +156,73 @@ static void turno_umano(char navi_avversario[BN_LATO][BN_LATO], char colpi[BN_LA
     }
 }
 
-static void turno_bot(char navi[BN_LATO][BN_LATO], char colpi[BN_LATO][BN_LATO]) {
-    int r, c;
-    do {
-        r = rand() % BN_LATO;
-        c = rand() % BN_LATO;
-    } while (colpi[r][c] != ' ');
-    spara(navi, colpi, r, c);
+static int dentro(int r, int c) {
+    return r >= 0 && r < BN_LATO && c >= 0 && c < BN_LATO;
+}
+
+int battaglia_mira(const char colpi[BN_LATO][BN_LATO], int *riga, int *colonna) {
+    static const int DR[] = {-1, 1, 0, 0};
+    static const int DC[] = {0, 0, -1, 1};
+    for (int r = 0; r < BN_LATO; r++) {
+        for (int c = 0; c < BN_LATO; c++) {
+            if (colpi[r][c] != 'X') continue;
+            for (int d = 0; d < 4; d++) {
+                int nr = r + DR[d], nc = c + DC[d];
+                if (!dentro(nr, nc) || colpi[nr][nc] != 'X') continue;
+                int avanti_r = nr + DR[d], avanti_c = nc + DC[d];
+                if (dentro(avanti_r, avanti_c) && colpi[avanti_r][avanti_c] == ' ') {
+                    *riga = avanti_r;
+                    *colonna = avanti_c;
+                    return 1;
+                }
+                int indietro_r = r - DR[d], indietro_c = c - DC[d];
+                if (dentro(indietro_r, indietro_c) && colpi[indietro_r][indietro_c] == ' ') {
+                    *riga = indietro_r;
+                    *colonna = indietro_c;
+                    return 1;
+                }
+            }
+        }
+    }
+    for (int r = 0; r < BN_LATO; r++) {
+        for (int c = 0; c < BN_LATO; c++) {
+            if (colpi[r][c] != 'X') continue;
+            for (int d = 0; d < 4; d++) {
+                int nr = r + DR[d], nc = c + DC[d];
+                if (dentro(nr, nc) && colpi[nr][nc] == ' ') {
+                    *riga = nr;
+                    *colonna = nc;
+                    return 1;
+                }
+            }
+        }
+    }
+    int candidati[BN_LATO * BN_LATO], n = 0;
+    for (int parita = 0; parita < 2; parita++) {
+        n = 0;
+        for (int r = 0; r < BN_LATO; r++) {
+            for (int c = 0; c < BN_LATO; c++) {
+                if (colpi[r][c] == ' ' && (r + c) % 2 == parita) candidati[n++] = r * BN_LATO + c;
+            }
+        }
+        if (n > 0) break;
+    }
+    if (n == 0) return 0;
+    int scelto = candidati[rand() % n];
+    *riga = scelto / BN_LATO;
+    *colonna = scelto % BN_LATO;
+    return 1;
+}
+
+static void turno_bot(char navi[BN_LATO][BN_LATO], char colpi[BN_LATO][BN_LATO], const char proprie[BN_LATO][BN_LATO]) {
+    int r = 0, c = 0;
+    if (!battaglia_mira(colpi, &r, &c)) return;
+    int centro = spara(navi, colpi, r, c);
+    console_pulisci();
+    printf("Il bot spara in %c%d: %s\n\n", 'A' + c, r + 1, centro ? "colpito" : "acqua");
+    printf("Le tue navi:\n");
+    disegna_griglia(proprie, r, c, 1);
+    console_attendi_invio();
 }
 
 int battaglia_gioca(int contro_bot) {
@@ -174,7 +235,7 @@ int battaglia_gioca(int contro_bot) {
 
     piazza_umano(navi1, "Giocatore 1");
     if (contro_bot) {
-        if (!battaglia_piazza_bot(navi2)) return 2;
+        if (!battaglia_piazza_bot(navi2)) return -1;
     } else {
         console_pulisci();
         printf("Passa il computer al giocatore 2.");
@@ -186,7 +247,7 @@ int battaglia_gioca(int contro_bot) {
     int turno1 = 1;
     for (;;) {
         if (!turno1 && contro_bot) {
-            turno_bot(navi1, colpi2);
+            turno_bot(navi1, colpi2, navi1);
         } else {
             if (!contro_bot) {
                 console_pulisci();
@@ -198,12 +259,17 @@ int battaglia_gioca(int contro_bot) {
         }
         if (colpi_a_segno(colpi1) == bersaglio || colpi_a_segno(colpi2) == bersaglio) {
             int vince1 = colpi_a_segno(colpi1) == bersaglio;
+            int esito = vince1 ? 0 : 1;
+            punteggio_registra("Battaglia", contro_bot, esito);
+            char riepilogo[80];
+            punteggio_testo("Battaglia", contro_bot, riepilogo, sizeof riepilogo);
             console_pulisci();
             printf(vince1 ? "Vince il giocatore 1: flotta avversaria affondata.\n"
                           : "Vince %s: la tua flotta e' affondata.\n",
                    contro_bot ? "il bot" : "il giocatore 2");
+            printf("%s\n", riepilogo);
             console_attendi_invio();
-            return vince1 ? 0 : 1;
+            return esito;
         }
         turno1 = !turno1;
     }

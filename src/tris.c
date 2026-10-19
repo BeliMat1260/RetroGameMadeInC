@@ -1,5 +1,6 @@
 #include "tris.h"
 #include "console.h"
+#include "punteggio.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -45,27 +46,47 @@ static int mossa_che_chiude(const char b[3][3], char simbolo) {
     return -1;
 }
 
+/* 1 se vince O, -1 se vince X, 0 pareggio o partita aperta valutata a fondo. */
+static int minimax(char b[3][3], int turno_o) {
+    char v = tris_vincitore(b);
+    if (v == 'O') return 1;
+    if (v == 'X') return -1;
+    if (tris_pieno(b)) return 0;
+    int migliore = turno_o ? -2 : 2;
+    for (int i = 0; i < 9; i++) {
+        if (a(b, i) != ' ') continue;
+        b[i / 3][i % 3] = turno_o ? 'O' : 'X';
+        int valore = minimax(b, !turno_o);
+        b[i / 3][i % 3] = ' ';
+        if (turno_o && valore > migliore) migliore = valore;
+        if (!turno_o && valore < migliore) migliore = valore;
+    }
+    return migliore;
+}
+
 void tris_mossa_bot(char b[3][3], int difficile) {
     int scelta = -1;
     if (difficile) {
+        int migliore = -2;
+        for (int i = 0; i < 9; i++) {
+            if (a(b, i) != ' ') continue;
+            b[i / 3][i % 3] = 'O';
+            int valore = minimax(b, 0);
+            b[i / 3][i % 3] = ' ';
+            if (valore > migliore) {
+                migliore = valore;
+                scelta = i;
+            }
+        }
+    } else {
         scelta = mossa_che_chiude(b, 'O');
-        if (scelta < 0) scelta = mossa_che_chiude(b, 'X');
-        if (scelta < 0 && b[1][1] == ' ') scelta = 4;
         if (scelta < 0) {
-            int angoli[4] = {0, 2, 6, 8};
-            int liberi[4], n = 0;
-            for (int i = 0; i < 4; i++) {
-                if (a(b, angoli[i]) == ' ') liberi[n++] = angoli[i];
+            int liberi[9], n = 0;
+            for (int i = 0; i < 9; i++) {
+                if (a(b, i) == ' ') liberi[n++] = i;
             }
             if (n > 0) scelta = liberi[rand() % n];
         }
-    }
-    if (scelta < 0) {
-        int liberi[9], n = 0;
-        for (int i = 0; i < 9; i++) {
-            if (a(b, i) == ' ') liberi[n++] = i;
-        }
-        if (n > 0) scelta = liberi[rand() % n];
     }
     if (scelta >= 0) b[scelta / 3][scelta % 3] = 'O';
 }
@@ -106,15 +127,20 @@ int tris_gioca(int contro_bot, int difficile) {
                 b[cursore / 3][cursore % 3] = turno_x ? 'X' : 'O';
                 turno_x = !turno_x;
                 break;
-            case TASTO_ESC: return 2;
+            case TASTO_ESC: return -1;
             default: break;
         }
         char v = tris_vincitore(b);
         if (v == 'X' || v == 'O' || tris_pieno(b)) {
-            const char *esito = v == 'X' ? "Vince X" : v == 'O' ? (contro_bot ? "Vince il bot" : "Vince O") : "Pareggio";
-            disegna(b, -1, esito);
+            int esito = v == 'X' ? 0 : v == 'O' ? 1 : 2;
+            const char *testo = esito == 0 ? "Vince X" : esito == 1 ? (contro_bot ? "Vince il bot" : "Vince O") : "Pareggio";
+            punteggio_registra("Tris", contro_bot, esito);
+            char riepilogo[80];
+            punteggio_testo("Tris", contro_bot, riepilogo, sizeof riepilogo);
+            disegna(b, -1, testo);
+            printf("\n%s\n", riepilogo);
             console_attendi_invio();
-            return v == 'X' ? 0 : v == 'O' ? 1 : 2;
+            return esito;
         }
     }
 }

@@ -1,5 +1,6 @@
 #include "forza4.h"
 #include "console.h"
+#include "punteggio.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -48,33 +49,104 @@ static int pieno(const char b[F4_RIGHE][F4_COLONNE]) {
     return 1;
 }
 
-/* Colonna che, se giocata da segno, chiude la partita. -1 se non esiste. */
-static int colonna_vincente(const char b[F4_RIGHE][F4_COLONNE], char segno) {
-    for (int c = 0; c < F4_COLONNE; c++) {
-        char copia[F4_RIGHE][F4_COLONNE];
-        memcpy(copia, b, sizeof copia);
-        if (forza4_caduta(copia, c, segno) >= 0 && forza4_vince(copia, segno)) return c;
+static int valuta(const char f[4]) {
+    int miei = 0, suoi = 0;
+    for (int i = 0; i < 4; i++) {
+        if (f[i] == 'X') miei++;
+        else if (f[i] == 'O') suoi++;
     }
-    return -1;
+    if (miei && suoi) return 0;
+    if (miei == 4) return 100;
+    if (suoi == 4) return -100;
+    if (miei == 3) return 12;
+    if (suoi == 3) return -10;
+    if (miei == 2) return 3;
+    if (suoi == 2) return -2;
+    return 0;
+}
+
+static int euristica(char b[F4_RIGHE][F4_COLONNE]) {
+    int totale = 0;
+    char finestre[4];
+    for (int r = 0; r < F4_RIGHE; r++) {
+        for (int c = 0; c < F4_COLONNE; c++) {
+            if (c <= F4_COLONNE - 4) {
+                for (int i = 0; i < 4; i++) finestre[i] = b[r][c + i];
+                totale += valuta(finestre);
+            }
+            if (r <= F4_RIGHE - 4) {
+                for (int i = 0; i < 4; i++) finestre[i] = b[r + i][c];
+                totale += valuta(finestre);
+            }
+            if (r <= F4_RIGHE - 4 && c <= F4_COLONNE - 4) {
+                for (int i = 0; i < 4; i++) finestre[i] = b[r + i][c + i];
+                totale += valuta(finestre);
+            }
+            if (r >= 3 && c <= F4_COLONNE - 4) {
+                for (int i = 0; i < 4; i++) finestre[i] = b[r - i][c + i];
+                totale += valuta(finestre);
+            }
+        }
+    }
+    return totale;
+}
+
+static void annulla(char b[F4_RIGHE][F4_COLONNE], int colonna) {
+    for (int r = 0; r < F4_RIGHE; r++) {
+        if (b[r][colonna] != ' ') {
+            b[r][colonna] = ' ';
+            return;
+        }
+    }
+}
+
+static int cerca(char b[F4_RIGHE][F4_COLONNE], int profondita, int alfa, int beta, int turno_x) {
+    if (forza4_vince(b, 'X')) return 100000 + profondita;
+    if (forza4_vince(b, 'O')) return -100000 - profondita;
+    if (profondita == 0 || pieno(b)) return euristica(b);
+    static const int ordine[] = {3, 2, 4, 1, 5, 0, 6};
+    int migliore = turno_x ? -1000000 : 1000000;
+    for (int i = 0; i < F4_COLONNE; i++) {
+        int colonna = ordine[i];
+        if (forza4_caduta(b, colonna, turno_x ? 'X' : 'O') < 0) continue;
+        int valore = cerca(b, profondita - 1, alfa, beta, !turno_x);
+        annulla(b, colonna);
+        if (turno_x && valore > migliore) migliore = valore;
+        if (!turno_x && valore < migliore) migliore = valore;
+        if (turno_x && valore > alfa) alfa = valore;
+        if (!turno_x && valore < beta) beta = valore;
+        if (alfa >= beta) break;
+    }
+    return migliore == 1000000 || migliore == -1000000 ? 0 : migliore;
 }
 
 int forza4_colonna_bot(const char b[F4_RIGHE][F4_COLONNE], int difficile) {
-    if (difficile) {
-        int vince = colonna_vincente(b, 'X');
-        if (vince >= 0) return vince;
-        int blocca = colonna_vincente(b, 'O');
-        if (blocca >= 0) return blocca;
+    char copia[F4_RIGHE][F4_COLONNE];
+    static const int ordine[] = {3, 2, 4, 1, 5, 0, 6};
+    if (!difficile) {
+        int libere[F4_COLONNE], n = 0;
+        for (int i = 0; i < F4_COLONNE; i++) {
+            int colonna = ordine[i];
+            memcpy(copia, b, sizeof copia);
+            if (forza4_caduta(copia, colonna, 'X') < 0) continue;
+            if (forza4_vince(copia, 'X')) return colonna;
+            libere[n++] = colonna;
+        }
+        return n == 0 ? -1 : libere[rand() % n];
     }
-    int libere[F4_COLONNE], n = 0;
-    for (int c = 0; c < F4_COLONNE; c++) {
-        if (b[0][c] == ' ') libere[n++] = c;
+    int scelta = -1;
+    int migliore = -1000000;
+    for (int i = 0; i < F4_COLONNE; i++) {
+        int colonna = ordine[i];
+        memcpy(copia, b, sizeof copia);
+        if (forza4_caduta(copia, colonna, 'X') < 0) continue;
+        int valore = cerca(copia, 5, -1000000, 1000000, 0);
+        if (valore > migliore) {
+            migliore = valore;
+            scelta = colonna;
+        }
     }
-    if (n == 0) return -1;
-    /* Preferisce il centro quando la colonna centrale e' tra le libere. */
-    for (int i = 0; i < n; i++) {
-        if (libere[i] == F4_COLONNE / 2 && rand() % 2 == 0) return libere[i];
-    }
-    return libere[rand() % n];
+    return scelta;
 }
 
 static void disegna(const char b[F4_RIGHE][F4_COLONNE], int colonna, const char *turno) {
@@ -115,18 +187,22 @@ int forza4_gioca(int contro_bot, int difficile) {
                 case TASTO_INVIO:
                     if (forza4_caduta(b, colonna, turno_o ? 'O' : 'X') >= 0) giocata = 1;
                     break;
-                case TASTO_ESC: return 2;
+                case TASTO_ESC: return -1;
                 default: break;
             }
             if (!giocata) continue;
             turno_o = !turno_o;
         }
         if (forza4_vince(b, 'O') || forza4_vince(b, 'X') || pieno(b)) {
-            char v = forza4_vince(b, 'O') ? 'O' : forza4_vince(b, 'X') ? 'X' : ' ';
-            const char *esito = v == 'O' ? "Vince O" : v == 'X' ? (contro_bot ? "Vince il bot" : "Vince X") : "Pareggio";
-            disegna(b, -1, esito);
+            int esito = forza4_vince(b, 'O') ? 0 : forza4_vince(b, 'X') ? 1 : 2;
+            const char *testo = esito == 0 ? "Vince O" : esito == 1 ? (contro_bot ? "Vince il bot" : "Vince X") : "Pareggio";
+            punteggio_registra("Forza4", contro_bot, esito);
+            char riepilogo[80];
+            punteggio_testo("Forza4", contro_bot, riepilogo, sizeof riepilogo);
+            disegna(b, -1, testo);
+            printf("\n%s\n", riepilogo);
             console_attendi_invio();
-            return v == 'O' ? 0 : v == 'X' ? 1 : 2;
+            return esito;
         }
     }
 }

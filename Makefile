@@ -5,8 +5,8 @@ SRC = src/console.c src/tris.c src/forza4.c src/battaglia.c src/punteggio.c src/
 retrogame.exe: $(SRC)
 	$(CC) $(CFLAGS) -o $@ $(SRC)
 
-test: src/tris.c src/forza4.c src/battaglia.c tests/logica.c
-	$(CC) $(CFLAGS) -o test_logica.exe src/tris.c src/forza4.c src/battaglia.c tests/logica.c
+test: src/tris.c src/forza4.c src/battaglia.c src/punteggio.c src/console.c tests/logica.c
+	$(CC) $(CFLAGS) -o test_logica.exe src/tris.c src/forza4.c src/battaglia.c src/punteggio.c src/console.c tests/logica.c
 	./test_logica.exe
 
 clean:

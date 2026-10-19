@@ -1,6 +1,7 @@
 #include "tris.h"
 #include "forza4.h"
 #include "battaglia.h"
+#include "punteggio.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -66,11 +67,45 @@ static void test_battaglia(void) {
     verifica(celle == 3 + 4 + 2 + 5, "14 caselle di nave");
 }
 
+static void test_mira(void) {
+    char colpi[BN_LATO][BN_LATO];
+    int r, c;
+    memset(colpi, ' ', sizeof colpi);
+    colpi[4][4] = 'X';
+    colpi[4][5] = 'X';
+    verifica(battaglia_mira(colpi, &r, &c), "il bot trova un bersaglio");
+    verifica((r == 4 && c == 6) || (r == 4 && c == 3), "il bot prosegue sulla nave");
+    memset(colpi, ' ', sizeof colpi);
+    colpi[2][2] = 'X';
+    battaglia_mira(colpi, &r, &c);
+    int adiacente = (r == 1 && c == 2) || (r == 3 && c == 2) || (r == 2 && c == 1) || (r == 2 && c == 3);
+    verifica(adiacente, "dopo un colpo il bot spara accanto");
+}
+
+static void test_punteggio(void) {
+    const char *file = "punteggio_test.txt";
+    remove(file);
+    punteggio_usa_file(file);
+    punteggio_registra("Tris", 1, 0);
+    punteggio_registra("Tris", 1, 1);
+    punteggio_registra("Tris", 0, 0);
+    punteggio_registra("Tris", 1, -1);
+    char testo[80];
+    punteggio_testo("Tris", 1, testo, sizeof testo);
+    verifica(strcmp(testo, "Contro il bot: tu 1, bot 1, pareggi 0") == 0, "il punteggio contro il bot viene contato");
+    punteggio_testo("Tris", 0, testo, sizeof testo);
+    verifica(strcmp(testo, "Tu 1, avversario 0, pareggi 0") == 0, "la partita tra giocatori resta separata");
+    punteggio_usa_file(NULL);
+    remove(file);
+}
+
 int main(void) {
     srand(1);
     test_tris();
     test_forza4();
     test_battaglia();
+    test_mira();
+    test_punteggio();
     printf(fallimenti == 0 ? "ALL PASS\n" : "%d failures\n", fallimenti);
     return fallimenti == 0 ? 0 : 1;
 }

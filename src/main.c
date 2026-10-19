@@ -28,13 +28,9 @@ static int scegli(const char *titolo, const char **voci, int numero) {
 }
 
 static int difficolta(void) {
-    const char *voci[] = {"Facile: mosse a caso", "Difficile: chiude e blocca"};
+    const char *voci[] = {"Facile", "Difficile"};
     int scelta = scegli("DIFFICOLTA DEL BOT", voci, 2);
     return scelta < 0 ? 0 : scelta;
-}
-
-static void partita(const char *nome, int esito) {
-    punteggio_registra(nome, esito);
 }
 
 int main(void) {
@@ -52,14 +48,13 @@ int main(void) {
 
     for (;;) {
         int scelta = scegli("RETRO GAME    Tris, Forza 4, Battaglia navale", voci, 8);
-        int esito = 2;
         switch (scelta) {
-            case 0: esito = tris_gioca(0, 0); partita("Tris", esito); break;
-            case 1: esito = tris_gioca(1, difficolta()); partita("Tris", esito); break;
-            case 2: esito = forza4_gioca(0, 0); partita("Forza4", esito); break;
-            case 3: esito = forza4_gioca(1, difficolta()); partita("Forza4", esito); break;
-            case 4: esito = battaglia_gioca(0); punteggio_registra("Battaglia", esito); break;
-            case 5: esito = battaglia_gioca(1); punteggio_registra("Battaglia", esito); break;
+            case 0: tris_gioca(0, 0); break;
+            case 1: tris_gioca(1, difficolta()); break;
+            case 2: forza4_gioca(0, 0); break;
+            case 3: forza4_gioca(1, difficolta()); break;
+            case 4: battaglia_gioca(0); break;
+            case 5: battaglia_gioca(1); break;
             case 6: punteggio_mostra(); break;
             default: return 0;
         }
